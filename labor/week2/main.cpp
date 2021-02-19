@@ -53,7 +53,28 @@ int main()
 
 	Circle c {Point{700,700}, 100};
 
-	win.attach(ii);
+	Polygon poly; //nem keresztezhetik egymást az élek (konvex sokszög)
+	poly.add(Point{300,200});
+	poly.add(Point{350,100});
+	poly.add(Point{400,200});
+	poly.set_color(Color::red);
+
+	Closed_polyline poly_rect; //utolsó pontot összeköti az elsővel
+	poly_rect.add(Point{100,50});
+	poly_rect.add(Point{200,50});
+	poly_rect.add(Point{200,100});
+	poly_rect.add(Point{100,100});
+	poly_rect.add(Point{50,75});
+
+	Mark m {Point{100,200}, 'x'};
+
+	ostringstream oss;
+	oss << "screen size: " << x_max() << '*' << y_max()
+		<< " windows size" << win.x_max() << '*' << y_max();
+
+	Text sizes {Point{500,500}, oss.str()}; 
+
+	//win.attach(ii);
 	win.attach(c);
 	win.attach(t);
 	win.attach(r);
@@ -62,7 +83,10 @@ int main()
 	win.attach(cos_func);
 	win.attach(x);
 	win.attach(y);
+	win.attach(poly);
+	win.attach(poly_rect);
+	win.attach(m);
+	win.attach(sizes);
 
     win.wait_for_button();
-
 }
