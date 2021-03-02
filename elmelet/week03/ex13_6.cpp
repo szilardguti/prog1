@@ -1,5 +1,5 @@
 /*
-    g++ ex13.cpp Graph.cpp Window.cpp GUI.cpp Simple_window.cpp -o ex13 `fltk-config --ldflags --use-images`
+    g++ ex13_6.cpp Graph.cpp Window.cpp GUI.cpp Simple_window.cpp -o ex13_6 `fltk-config --ldflags --use-images`
 */
 #include "Simple_window.h"
 #include "Graph.h"
@@ -88,28 +88,55 @@ struct Arrow : Shape
 		add(b);
 	}
 
-	void calc_points();
 	void draw_lines() const;
 };
 
 
 int main()
 {
-    using namespace Graph_lib;
+	using namespace Graph_lib;
+	constexpr int win_w = 1200;
+	constexpr int win_h = 800;
+	Simple_window win{Point{100,100}, win_w, win_h, "Class diagram"};
 
-    Simple_window win{Point{100,100}, 800, 800, "testing"};
+	Vector_ref<Box> boxes;
+	Vector_ref<Arrow> arrows;
 
-    Box box {Point{100,100}, 100, 75, "teszt"};
-    box.set_fill_color(Color::yellow);
-    box.set_color(Color::green);
-    Rectangle keret {Point{100,100}, 300, 150 };
+	constexpr int bigbox_w = 150, bigbox_h = 75;
+	constexpr int smallbox_w = 100, smallbox_h = 50;
 
-    Arrow arr {Point{600,200}, Point{750,300}};
+	boxes.push_back(new Box {Point{550,100},bigbox_w,bigbox_h,"Shape"});
+	boxes.push_back(new Box {Point{50,250},smallbox_w,smallbox_h,"Circle"});
+	boxes.push_back(new Box {Point{200,250},smallbox_w,smallbox_h,"Ellipse"});
+	boxes.push_back(new Box {Point{1050,250},smallbox_w,smallbox_h,"Text"});
+	boxes.push_back(new Box {Point{400,400},bigbox_w,bigbox_h,"Open_poly"});
+	boxes.push_back(new Box {Point{200,550},smallbox_w * 2,smallbox_h,"Marked_poly"});
+	boxes.push_back(new Box {Point{600,550},smallbox_w * 2,smallbox_h,"Closed_poly"});
+	boxes.push_back(new Box {Point{200,650},smallbox_w,smallbox_h,"Marks"});
+	boxes.push_back(new Box {Point{600,650},smallbox_w,smallbox_h,"Polygon"});
+	boxes.push_back(new Box {Point{200,750},smallbox_w,smallbox_h,"Mark"});
 
-    //win.attach(keret);
-    win.attach(box);
-    win.attach(arr);
-    win.wait_for_button();
+
+	Point Shape_half{boxes[0].point(0).x + bigbox_w / 2, boxes[0].point(0).y + bigbox_h};
+	for(int i = 0;i < 3; ++i)
+		arrows.push_back(new Arrow(Point{boxes[i+1].point(0).x + smallbox_w / 2, boxes[i+1].point(0).y}, Shape_half));
+
+	arrows.push_back(new Arrow(Point{boxes[4].point(0).x + bigbox_w / 2, boxes[4].point(0).y}, Shape_half));
+	arrows.push_back(new Arrow(Point{boxes[5].point(0).x + smallbox_w, boxes[5].point(0).y}, Point{boxes[4].point(0).x + bigbox_w / 2, boxes[4].point(0).y + bigbox_h}));
+	arrows.push_back(new Arrow(Point{boxes[6].point(0).x + smallbox_w, boxes[6].point(0).y}, Point{boxes[4].point(0).x + bigbox_w / 2, boxes[4].point(0).y + bigbox_h}));
+	arrows.push_back(new Arrow(Point{boxes[7].point(0).x + smallbox_w / 2, boxes[7].point(0).y}, Point{boxes[5].point(0).x + smallbox_w , boxes[5].point(0).y + smallbox_h}));
+	arrows.push_back(new Arrow(Point{boxes[8].point(0).x + smallbox_w / 2, boxes[8].point(0).y}, Point{boxes[6].point(0).x + smallbox_w, boxes[6].point(0).y + smallbox_h}));
+	arrows.push_back(new Arrow(Point{boxes[9].point(0).x + smallbox_w / 2, boxes[9].point(0).y}, Point{boxes[7].point(0).x + smallbox_w / 2, boxes[7].point(0).y + smallbox_h}));
+
+
+	for(int i = 0; i < arrows.size(); ++i) 	win.attach(arrows[i]);
+	for(int i = 0;i < boxes.size(); ++i)
+	{
+		boxes[i].set_fill_color(Color::red);
+		win.attach(boxes[i]);
+	}
+
+	win.wait_for_button();
 }
 
 
@@ -139,8 +166,8 @@ void Box::draw_lines() const
 	Point a3{ point(0).x + w - arc_w, point(0).y };
 	Point a4{ point(0).x + w - arc_w, point(0).y + h - arc_h};
 
-	Line l1{Point{point(0).x + w / arc_ratio, point(0).y},Point{a3.x + w / arc_ratio, point(0).y}};	//---
-	Line l2{Point{point(0).x, a1.y + h / arc_ratio},Point{a2.x, a2.y + h / arc_ratio}};	// | x
+	Line l1{Point{a1.x + w / arc_ratio, a1.y},Point{a3.x + w / arc_ratio, point(0).y}};	//---
+	Line l2{Point{a1.x, a1.y + h / arc_ratio},Point{a2.x, a2.y + h / arc_ratio}};	// | x
 	Line l3{Point{a3.x + arc_w, a3.y + h / arc_ratio},Point{a4.x + arc_w, a4.y + h / arc_ratio}};	// x |
 	Line l4{Point{a2.x + w / arc_ratio, a2.y + arc_h},Point{a4.x + w / arc_ratio, a4.y + arc_h}};	// ___
 
@@ -190,7 +217,7 @@ void Box::draw_lines() const
 void Arrow::draw_lines() const 
 {
 		//https://math.stackexchange.com/questions/2125690/find-coordinates-of-3rd-right-triangle-point-having-2-sets-of-coordinates-and-a
-		int arrowSize = 50;
+		int arrowSize = 10;
 		double halfA = arrowSize / 2;
 		Point p1(point(0).x, point(0).y);
 		Point p2(point(1).x, point(1).y);
